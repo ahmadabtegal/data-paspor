@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoring Pengambilan Paspor</title>
+<style>
+:root{--navy:#12304a;--blue:#1769aa;--bg:#f3f6fa;--ink:#203040;--muted:#64748b;--line:#e2e8f0;--green:#16845b;--amber:#b7791f;--red:#c0392b}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(120deg,#12304a,#1769aa);color:#fff;padding:22px max(18px,calc((100% - 1240px)/2));}
+header h1{font-size:24px;margin:0 0 6px}header p{margin:0;color:#dceaf5;font-size:13px}
+main{max-width:1240px;margin:22px auto;padding:0 16px 40px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.small{font-size:12px;color:var(--muted)}button,.btn{border:0;border-radius:8px;padding:10px 13px;cursor:pointer;font-weight:650;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.primary{background:var(--blue);color:#fff}.secondary{background:#e8eef5;color:#243b53}.success{background:#e2f5eb;color:#126b47}.warning{background:#fff2d8;color:#8a5a08}.danger{background:#fde8e7;color:#a62d24}.outline{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}.stat{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px;box-shadow:0 2px 8px #102a4308}.stat .label{font-size:12px;color:var(--muted)}.stat .num{font-size:28px;font-weight:750;margin-top:8px}.stat .hint{font-size:11px;color:var(--muted);margin-top:3px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px;margin-bottom:18px;box-shadow:0 2px 8px #102a4308}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}.panel h2{font-size:16px;margin:0}.filters{display:flex;gap:8px;flex-wrap:wrap}.filters input,.filters select{min-width:160px}
+input,select,textarea{font:inherit;border:1px solid #cbd5e1;border-radius:8px;padding:10px 11px;background:#fff;color:var(--ink);width:100%;font-size:13px}textarea{min-height:76px;resize:vertical}label{font-size:12px;font-weight:650;display:block;margin-bottom:6px}.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.field.full{grid-column:1/-1}.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:9px}table{border-collapse:collapse;width:100%;min-width:1000px;font-size:12px}th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#f8fafc;color:#475569;font-weight:700;white-space:nowrap}tbody tr:hover{background:#f8fbff}tbody tr:last-child td{border-bottom:0}.name{font-weight:700}.sub{font-size:11px;color:var(--muted);margin-top:3px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:750;white-space:nowrap;background:#edf2f7;color:#475569}.pill.wait{background:#fff2d8;color:#8a5a08}.pill.done{background:#e2f5eb;color:#126b47}.pill.called{background:#e1efff;color:#185a9d}.pill.cancel{background:#fde8e7;color:#a62d24}.actions{display:flex;gap:5px;flex-wrap:wrap}.actions button{padding:7px 8px;font-size:11px}.two-col{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.log-item{padding:11px 0;border-bottom:1px solid var(--line)}.log-item:last-child{border-bottom:0}.log-title{font-size:12px;font-weight:700}.log-meta{font-size:11px;color:var(--muted);margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere}
+.hidden{display:none!important}.empty{text-align:center;color:var(--muted);padding:30px 12px;font-size:13px}.notice{padding:11px 13px;border-radius:8px;font-size:12px;margin-bottom:12px;display:none}.notice.show{display:block}.notice.ok{background:#e2f5eb;color:#126b47}.notice.err{background:#fde8e7;color:#a62d24}.notice.info{background:#e1efff;color:#185a9d}.footer{text-align:center;color:var(--muted);font-size:11px;padding:12px}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.two-col{grid-template-columns:1fr}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){header h1{font-size:20px}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stat{padding:12px}.stat .num{font-size:24px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.panel{padding:13px}main{margin-top:14px}.filters input,.filters select{min-width:100%}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Monitoring Pengambilan Paspor</h1>
+  <p>Dashboard petugas • Pendataan paspor selesai, pemberitahuan WhatsApp, dan status pengambilan</p>
+</header>
+<main>
+  <div class="topbar">
+    <div><strong>Panel Monitoring</strong><div class="small" id="lastUpdate">Memuat data...</div></div>
+    <div class="actions"><button class="outline" onclick="loadData()">↻ Refresh</button><button class="primary" onclick="newRecord()">＋ Input Paspor</button></div>
+  </div>
+  <div id="notice" class="notice"></div>
+  <section class="stats">
+    <div class="stat"><div class="label">Total Paspor Selesai</div><div class="num" id="statTotal">0</div><div class="hint">Semua data terdaftar</div></div>
+    <div class="stat"><div class="label">Belum Diambil</div><div class="num" id="statWaiting">0</div><div class="hint">Menunggu atau sudah dihubungi</div></div>
+    <div class="stat"><div class="label">Belum Dihubungi</div><div class="num" id="statUncontacted">0</div><div class="hint">Belum ada notifikasi tercatat</div></div>
+    <div class="stat"><div class="label">Sudah Diambil</div><div class="num" id="statDone">0</div><div class="hint">Pengambilan selesai</div></div>
+    <div class="stat"><div class="label">Terkirim via API</div><div class="num" id="statSent">0</div><div class="hint">Status dari log aplikasi</div></div>
+  </section>
+
+  <section class="panel hidden" id="formPanel">
+    <div class="panel-head"><h2 id="formTitle">Input Paspor Selesai</h2><button class="outline" onclick="closeForm()">Tutup</button></div>
+    <form id="passportForm" onsubmit="submitForm(event)">
+      <input type="hidden" id="fId">
+      <div class="form-grid">
+        <div class="field"><label for="fNama">Nama Pemohon *</label><input id="fNama" required maxlength="150" placeholder="Nama lengkap"></div>
+        <div class="field"><label for="fWa">Nomor WhatsApp *</label><input id="fWa" required inputmode="tel" placeholder="08xxxxxxxxxx"></div>
+        <div class="field"><label for="fNomor">Nomor Permohonan / Kode Pengambilan</label><input id="fNomor" maxlength="80" placeholder="Nomor referensi"></div>
+        <div class="field"><label for="fTanggalJadi">Tanggal Paspor Jadi *</label><input id="fTanggalJadi" type="date" required></div>
+        <div class="field"><label for="fStatus">Status Pengambilan</label><select id="fStatus"><option>Menunggu Pengambilan</option><option>Sudah Dihubungi</option><option>Sudah Diambil</option><option>Dibatalkan/Koreksi</option></select></div>
+        <div class="field"><label for="fTanggalDiambil">Tanggal Diambil</label><input id="fTanggalDiambil" type="date"></div>
+        <div class="field full"><label for="fCatatan">Catatan</label><textarea id="fCatatan" maxlength="1000" placeholder="Catatan internal (jangan masukkan data sensitif yang tidak diperlukan)"></textarea></div>
+      </div>
+      <div class="form-actions"><button class="primary" id="saveBtn" type="submit">Simpan Data</button><button class="outline" type="button" onclick="closeForm()">Batal</button></div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Daftar Data Paspor</h2><div class="filters">
+      <input id="searchInput" placeholder="Cari nama / WA / nomor..." oninput="renderTable()">
+      <select id="statusFilter" onchange="renderTable()"><option value="">Semua Status</option><option>Menunggu Pengambilan</option><option>Sudah Dihubungi</option><option>Sudah Diambil</option><option>Dibatalkan/Koreksi</option></select>
+    </div></div>
+    <div class="table-wrap"><table><thead><tr><th>Pemohon</th><th>Nomor WA</th><th>Tanggal Jadi</th><th>Status Pengambilan</th><th>Notifikasi</th><th>Tanggal Diambil</th><th>Aksi</th></tr></thead><tbody id="passportRows"><tr><td colspan="7" class="empty">Memuat...</td></tr></tbody></table></div>
+    <div class="small" id="rowCount" style="margin-top:10px"></div>
+  </section>
+
+  <section class="two-col">
+    <div class="panel"><div class="panel-head"><h2>Riwayat Notifikasi</h2><span class="small">100 aktivitas terbaru</span></div><div id="logs"><div class="empty">Memuat riwayat...</div></div></div>
+    <div class="panel"><div class="panel-head"><h2>Pengaturan Layanan</h2></div><div id="settingsSummary" class="small">Memuat pengaturan...</div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><p class="small">Pengaturan rinci pesan dan integrasi WhatsApp dilakukan di sheet <b>PENGATURAN</b> dan Script Properties Apps Script.</p><p class="small"><b>Mode gabungan:</b> data baru mencoba pengiriman API otomatis jika diaktifkan. Tombol WA manual selalu tersedia untuk membuka WhatsApp Web dengan pesan terisi.</p></div>
+  </section>
+  <div class="footer">Monitoring Pengambilan Paspor • Simpan dan kelola data sesuai kewenangan serta kebijakan perlindungan data yang berlaku.</div>
+</main>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbxsIC1itwD8X8svfn3_W5uHGfCReMm6iAqES-UyfE6YeLRPYeD48UKO4Kcyw21Zed0dsQ/exec';
+let allRows = [], logs = [], settings = {};
+const $ = id => document.getElementById(id);
+
+function showNotice(message, type='info') {
+  const el = $('notice'); el.className = 'notice show ' + type; el.textContent = message;
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>{el.classList.remove('show')},7000);
+}
+function isConfigured(){ return API_URL && !API_URL.includes('PASTE_URL_'); }
+
+async function api(action, payload={}) {
+  if (!isConfigured()) throw new Error('URL Web App belum diisi. Edit konstanta API_URL pada index.html.');
+  // Apps Script ContentService redirects to script.googleusercontent.com; no-cors cannot read JSON.
+  // For a GitHub Pages frontend, use POST text/plain to avoid preflight, and configure Apps Script web app access.
+  const response = await fetch(API_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action,...payload})
+  });
+  const result = await response.json();
+  if (!result.ok) throw new Error(result.error || 'Permintaan gagal.');
+  return result.data;
+}
+async function loadData() {
+  try {
+    const d = await api('init');
+    allRows = d.rows || []; logs = d.logs || []; settings = d.settings || {};
+    renderStats(d.stats || {}); renderTable(); renderLogs(); renderSettings();
+    $('lastUpdate').textContent = 'Data diperbarui: ' + (d.serverTime || new Date().toLocaleString('id-ID'));
+  } catch(e) {
+    $('lastUpdate').textContent = 'Belum terhubung ke backend.';
+    showNotice(e.message, 'err');
+    $('passportRows').innerHTML = '<tr><td colspan="7" class="empty">Koneksi belum tersedia. Periksa URL Apps Script, izin deployment, dan konfigurasi akses.</td></tr>';
+  }
+}
+function renderStats(s) {
+  $('statTotal').textContent = s.total || 0;
+  $('statWaiting').textContent = s.menunggu || 0;
+  $('statUncontacted').textContent = s.belumDihubungi || 0;
+  $('statDone').textContent = s.sudahDiambil || 0;
+  $('statSent').textContent = s.terkirim || 0;
+}
+function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function dateDisplay(v) {
+  if (!v) return '-';
+  const s = String(v).slice(0,10); const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : esc(v);
+}
+function statusClass(s) {
+  if (s === 'Sudah Diambil') return 'done';
+  if (s === 'Sudah Dihubungi') return 'called';
+  if (s === 'Dibatalkan/Koreksi') return 'cancel';
+  return 'wait';
+}
+function renderTable() {
+  const q = $('searchInput').value.toLowerCase().trim(), st = $('statusFilter').value;
+  const rows = allRows.filter(r => (!st || r.Status_Pengambilan === st) && (!q || [r.Nama_Pemohon,r.Nomor_WA,r.Nomor_Permohonan].some(v=>String(v||'').toLowerCase().includes(q))));
+  $('rowCount').textContent = `Menampilkan ${rows.length} dari ${allRows.length} data`;
+  if (!rows.length) { $('passportRows').innerHTML='<tr><td colspan="7" class="empty">Belum ada data yang sesuai.</td></tr>'; return; }
+  $('passportRows').innerHTML = rows.map(r => `<tr>
+    <td><div class="name">${esc(r.Nama_Pemohon)}</div><div class="sub">${esc(r.Nomor_Permohonan || 'Tanpa nomor permohonan')}</div></td>
+    <td>${esc(r.Nomor_WA)}</td><td>${dateDisplay(r.Tanggal_Paspor_Jadi)}</td>
+    <td><span class="pill ${statusClass(r.Status_Pengambilan)}">${esc(r.Status_Pengambilan)}</span></td>
+    <td>${esc(r.Status_Notifikasi || 'Belum Dikirim')}<div class="sub">Jumlah: ${Number(r.Jumlah_Notifikasi||0)}</div></td>
+    <td>${dateDisplay(r.Tanggal_Diambil)}</td>
+    <td><div class="actions">
+      <button class="outline" onclick="editRecord('${esc(r.ID_Paspor)}')">Edit</button>
+      ${r.Status_Pengambilan !== 'Sudah Diambil' ? `<button class="success" onclick="sendManual('${esc(r.ID_Paspor)}')">Kirim WA</button>` : ''}
+      ${r.Status_Pengambilan !== 'Sudah Diambil' ? `<button class="warning" onclick="markTaken('${esc(r.ID_Paspor)}')">Sudah Diambil</button>` : `<button class="secondary" onclick="changeStatus('${esc(r.ID_Paspor)}')">Ubah Status</button>`}
+    </div></td></tr>`).join('');
+}
+function renderLogs() {
+  if (!logs.length) { $('logs').innerHTML='<div class="empty">Belum ada riwayat notifikasi.</div>'; return; }
+  $('logs').innerHTML = logs.map(l=>`<div class="log-item"><div class="log-title">${esc(l.Hasil_Kirim)} · ${esc(l.Metode_Kirim)}</div><div class="log-meta">${dateDisplay(l.Tanggal_Kirim)} ${esc(String(l.Tanggal_Kirim||'').slice(11,19))} · ${esc(l.Nomor_WA)}\n${esc(l.Isi_Pesan)}${l.Keterangan_Error ? '\nKeterangan: '+esc(l.Keterangan_Error):''}</div></div>`).join('');
+}
+function renderSettings() {
+  $('settingsSummary').innerHTML = `<p><b>Kantor:</b> ${esc(settings.NAMA_KANTOR||'Belum diatur')}</p><p><b>Jam layanan:</b> ${esc(settings.JAM_LAYANAN||'Belum diatur')}</p><p><b>Loket:</b> ${esc(settings.ALAMAT_LOKET||'Belum diatur')}</p><p><b>Kirim otomatis:</b> ${esc(settings.AUTO_SEND||'TIDAK')}</p><p><b>Fonnte aktif:</b> ${esc(settings.WA_ENABLED||'TIDAK')}</p>`;
+}
+function newRecord() {
+  $('passportForm').reset(); $('fId').value=''; $('fStatus').value='Menunggu Pengambilan';
+  $('fTanggalJadi').value = new Date().toISOString().slice(0,10);
+  $('formTitle').textContent='Input Paspor Selesai'; $('saveBtn').textContent='Simpan Data';
+  $('formPanel').classList.remove('hidden'); $('formPanel').scrollIntoView({behavior:'smooth'});
+}
+function closeForm(){ $('formPanel').classList.add('hidden'); }
+function editRecord(id) {
+  const r = allRows.find(x=>String(x.ID_Paspor)===String(id)); if(!r) return;
+  $('fId').value=r.ID_Paspor; $('fNama').value=r.Nama_Pemohon||''; $('fWa').value=r.Nomor_WA||'';
+  $('fNomor').value=r.Nomor_Permohonan||''; $('fTanggalJadi').value=String(r.Tanggal_Paspor_Jadi||'').slice(0,10);
+  $('fStatus').value=r.Status_Pengambilan||'Menunggu Pengambilan'; $('fTanggalDiambil').value=String(r.Tanggal_Diambil||'').slice(0,10);
+  $('fCatatan').value=r.Catatan||''; $('formTitle').textContent='Edit Data Paspor'; $('saveBtn').textContent='Simpan Perubahan';
+  $('formPanel').classList.remove('hidden'); $('formPanel').scrollIntoView({behavior:'smooth'});
+}
+async function submitForm(e) {
+  e.preventDefault(); const btn=$('saveBtn'); btn.disabled=true; btn.textContent='Menyimpan...';
+  const data = {id:$('fId').value,nama:$('fNama').value,nomorWa:$('fWa').value,nomorPermohonan:$('fNomor').value,tanggalJadi:$('fTanggalJadi').value,status:$('fStatus').value,tanggalDiambil:$('fTanggalDiambil').value,catatan:$('fCatatan').value,petugas:'Petugas'};
+  try {
+    const result = await api('save',{data});
+    closeForm(); showNotice(result.message + (result.autoResult ? ' Hasil WA otomatis: '+result.autoResult.status : ''), 'ok');
+    await loadData();
+  } catch(err) { showNotice(err.message,'err'); }
+  finally { btn.disabled=false; btn.textContent=$('fId').value?'Simpan Perubahan':'Simpan Data'; }
+}
+async function sendManual(id) {
+  const r=allRows.find(x=>String(x.ID_Paspor)===String(id)); if(!r)return;
+  try {
+    const result=await api('sendWhatsApp',{id,method:'manual',petugas:'Petugas'});
+    if(result.success) showNotice('Permintaan pengiriman WhatsApp berhasil diterima Fonnte. Periksa riwayat pesan Fonnte untuk status akhirnya.','ok');
+    else showNotice((result.status || 'Pengiriman gagal.') + (result.error ? ': ' + result.error : ''),'err');
+    await loadData();
+  } catch(e){showNotice(e.message,'err');}
+}
+async function markTaken(id) {
+  if(!confirm('Tandai paspor ini sudah diambil?'))return;
+  try { await api('updateStatus',{id,status:'Sudah Diambil',tanggalDiambil:new Date().toISOString().slice(0,10)}); showNotice('Status berhasil diperbarui.','ok'); await loadData(); }
+  catch(e){showNotice(e.message,'err');}
+}
+async function changeStatus(id) {
+  const r=allRows.find(x=>String(x.ID_Paspor)===String(id)); if(!r)return;
+  const statuses=['Menunggu Pengambilan','Sudah Dihubungi','Sudah Diambil','Dibatalkan/Koreksi'];
+  const next=prompt('Masukkan status persis salah satu:\n'+statuses.join('\n'),r.Status_Pengambilan);
+  if(!next)return; if(!statuses.includes(next)){showNotice('Status tidak dikenali.','err');return;}
+  try { await api('updateStatus',{id,status:next,tanggalDiambil:next==='Sudah Diambil'?new Date().toISOString().slice(0,10):''}); showNotice('Status diperbarui.','ok'); await loadData(); }
+  catch(e){showNotice(e.message,'err');}
+}
+loadData();
+</script>
+</body>
+</html>
