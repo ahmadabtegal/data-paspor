@@ -82,3 +82,7 @@ Jalankan `createDailyReminderTrigger()` satu kali untuk membuat trigger harian p
 - Batasi akses spreadsheet dan backend; jangan menyimpan token API di HTML/GitHub.
 - Gunakan data minimal yang diperlukan dan pastikan petugas berwenang mengakses data pemohon.
 - Buat salinan cadangan spreadsheet secara berkala.
+
+
+### Logo dan favicon
+Folder `assets/` berisi logo MPP Kota Tegal dan logo Ditjen Imigrasi. Keduanya ditampilkan di header aplikasi; favicon browser menggunakan logo Ditjen Imigrasi (`assets/logo-imigrasi.webp`). Pastikan folder `assets` ikut diunggah ke repositori GitHub Pages bersama `index.html`.

@@ -4,11 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Monitoring Pengambilan Paspor</title>
+<link rel="icon" type="image/webp" href="assets/logo-imigrasi.webp">
+<link rel="apple-touch-icon" href="assets/logo-imigrasi.webp">
 <style>
 :root{--navy:#12304a;--blue:#1769aa;--bg:#f3f6fa;--ink:#203040;--muted:#64748b;--line:#e2e8f0;--green:#16845b;--amber:#b7791f;--red:#c0392b}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-header{background:linear-gradient(120deg,#12304a,#1769aa);color:#fff;padding:22px max(18px,calc((100% - 1240px)/2));}
-header h1{font-size:24px;margin:0 0 6px}header p{margin:0;color:#dceaf5;font-size:13px}
+header{background:linear-gradient(120deg,#12304a,#1769aa);color:#fff;padding:18px max(18px,calc((100% - 1240px)/2));}
+.header-inner{display:flex;align-items:center;gap:18px;max-width:1240px;margin:0 auto}.brand-logos{display:flex;align-items:center;gap:12px;flex-shrink:0}.brand-logos img{width:66px;height:66px;object-fit:contain;background:transparent;border-radius:0;padding:0;filter:drop-shadow(0 3px 5px rgba(0,0,0,.38));}.brand-copy{min-width:0}header h1{font-size:24px;margin:0 0 6px}header p{margin:0;color:#dceaf5;font-size:13px}
 main{max-width:1240px;margin:22px auto;padding:0 16px 40px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
 .small{font-size:12px;color:var(--muted)}button,.btn{border:0;border-radius:8px;padding:10px 13px;cursor:pointer;font-weight:650;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .primary{background:var(--blue);color:#fff}.secondary{background:#e8eef5;color:#243b53}.success{background:#e2f5eb;color:#126b47}.warning{background:#fff2d8;color:#8a5a08}.danger{background:#fde8e7;color:#a62d24}.outline{background:#fff;border:1px solid var(--line);color:var(--ink)}
@@ -18,13 +20,21 @@ input,select,textarea{font:inherit;border:1px solid #cbd5e1;border-radius:8px;pa
 .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:9px}table{border-collapse:collapse;width:100%;min-width:1000px;font-size:12px}th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#f8fafc;color:#475569;font-weight:700;white-space:nowrap}tbody tr:hover{background:#f8fbff}tbody tr:last-child td{border-bottom:0}.name{font-weight:700}.sub{font-size:11px;color:var(--muted);margin-top:3px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:750;white-space:nowrap;background:#edf2f7;color:#475569}.pill.wait{background:#fff2d8;color:#8a5a08}.pill.done{background:#e2f5eb;color:#126b47}.pill.called{background:#e1efff;color:#185a9d}.pill.cancel{background:#fde8e7;color:#a62d24}.actions{display:flex;gap:5px;flex-wrap:wrap}.actions button{padding:7px 8px;font-size:11px}.two-col{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.log-item{padding:11px 0;border-bottom:1px solid var(--line)}.log-item:last-child{border-bottom:0}.log-title{font-size:12px;font-weight:700}.log-meta{font-size:11px;color:var(--muted);margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere}
 .hidden{display:none!important}.empty{text-align:center;color:var(--muted);padding:30px 12px;font-size:13px}.notice{padding:11px 13px;border-radius:8px;font-size:12px;margin-bottom:12px;display:none}.notice.show{display:block}.notice.ok{background:#e2f5eb;color:#126b47}.notice.err{background:#fde8e7;color:#a62d24}.notice.info{background:#e1efff;color:#185a9d}.footer{text-align:center;color:var(--muted);font-size:11px;padding:12px}
 @media(max-width:900px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.two-col{grid-template-columns:1fr}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:560px){header h1{font-size:20px}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stat{padding:12px}.stat .num{font-size:24px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.panel{padding:13px}main{margin-top:14px}.filters input,.filters select{min-width:100%}}
+@media(max-width:560px){.header-inner{align-items:flex-start;gap:10px}.brand-logos{gap:6px}.brand-logos img{width:43px;height:43px;border-radius:0;padding:0}header{padding-top:14px;padding-bottom:14px}header h1{font-size:18px}header p{font-size:11px}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stat{padding:12px}.stat .num{font-size:24px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.panel{padding:13px}main{margin-top:14px}.filters input,.filters select{min-width:100%}}
 </style>
 </head>
 <body>
 <header>
-  <h1>Monitoring Pengambilan Paspor</h1>
-  <p>Dashboard petugas • Pendataan paspor selesai, pemberitahuan WhatsApp, dan status pengambilan</p>
+  <div class="header-inner">
+    <div class="brand-logos" aria-label="Logo MPP Kota Tegal dan Imigrasi">
+      <img src="assets/logo-mpp-tegal.png" alt="Logo Mal Pelayanan Publik Kota Tegal">
+      <img src="assets/logo-imigrasi.webp" alt="Logo Direktorat Jenderal Imigrasi">
+    </div>
+    <div class="brand-copy">
+      <h1>Monitoring Pengambilan Paspor</h1>
+      <p>Dashboard petugas • Pendataan paspor selesai, pemberitahuan WhatsApp, dan status pengambilan</p>
+    </div>
+  </div>
 </header>
 <main>
   <div class="topbar">
